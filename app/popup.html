@@ -1,0 +1,26 @@
+<html>
+  <body>
+    <textarea type="text" id="input"></textarea>
+      <input type="password" id="password"></input>
+      <p>
+      <button type="submit" id="pgp_encrypt">
+        Encrypt with pgp
+      </button>
+      <button type="submit" id="pgp_decrypt">
+        Decrypt with pgp
+      </button>
+      <button type="submit" id="aes_encrypt">
+        Encrypt with AES
+      </button>
+      <button type="submit" id="aes_decrypt">
+        Decrypt with AES
+      </button>
+      <p>
+      <textarea readonly id="result"></textarea>
+  </body>
+  <script src="scripts/patch-worker.js"></script>
+  <script src="bower_components/openpgp/dist/openpgp.js"></script>
+  <script src="bower_components/cryptojslib/rollups/aes.js"></script>
+  <script src="bower_components/cryptojslib/components/pad-nopadding.js"></script>
+  <script src="scripts/popup.js"></script>
+</html>
