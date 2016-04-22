@@ -30,7 +30,8 @@
     "name": "__MSG_appName__",
     "permissions": [
         "activeTab",
-        "contextMenus"
+        "contextMenus",
+        "storage"
     ],
     "version": "0.0.1"
 }

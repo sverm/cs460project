@@ -12,16 +12,66 @@ function pgp_encrypt() {
   openpgp.encrypt(options).then(show_result);
 }
 
+function pgp_encrypt_keypair() {
+  chrome.storage.sync.get(['pgp_pubkey', 'pgp_privkey'], function(result) {
+    if (Object.keys(result).length === 0) {
+      show_error('No key, generate a keypair to use');
+    }
+    var options = {
+      data: document.getElementById('input').value,
+      publicKeys: openpgp.key.readArmored(result.pgp_pubkey).keys,
+      privateKey: openpgp.key.readArmored(result.pgp_privkey).keys[0],
+      armor: false
+    };
+    openpgp.encrypt(options).then(show_result);
+  });
+};
+
+function pgp_decrypt_keypair() {
+  chrome.storage.sync.get(['pgp_pubkey', 'pgp_privkey'], function(result) {
+    if (Object.keys(result).length === 0) {
+      show_error('No key, generate a keypair to use');
+    }
+    var options = {
+      message: openpgp.message.read(reverse(document.getElementById('input').value)),
+      publicKeys: openpgp.key.readArmored(result.pgp_pubkey).keys,
+      privateKey: openpgp.key.readArmored(result.pgp_privkey).keys[0],
+    };
+    openpgp.decrypt(options).then(show_result);
+  });
+};
+
 function pgp_decrypt() {
   var options = {
     message: openpgp.message.readArmored(document.getElementById('input').value),
     password: document.getElementById('password').value
   };
-  openpgp.decrypt(options).then(show_result);
+  openpgp.decrypt(options).then(show_result).catch(show_error);
+}
+
+function stringToUint(string) {
+  var string = btoa(unescape(encodeURIComponent(string))),
+  charList = string.split(''),
+  uintArray = [];
+  for (var i = 0; i < charList.length; i++) {
+    uintArray.push(charList[i].charCodeAt(0));
+  }
+  return new Uint8Array(uintArray);
+}
+
+function reverse(thing) {
+  return stringToUint(thing);
 }
 
 function show_result(result) {
+  if (result.message) {
+    result.data = btoa(String.fromCharCode.apply(null, result.message.packets.write()));
+  }
   document.getElementById('result').value = result && result.data ? result.data : result;
+}
+
+function show_error(input) {
+  show_result(typeof input === 'string' ? input : 'error in decryption');
 }
 
 function aes_encrypt() {
@@ -38,7 +88,41 @@ function aes_decrypt() {
   show_result(CryptoJS.AES.decrypt(data,key).toString(CryptoJS.enc.Utf8));
 }
 
+function pgp_keygen() {
+  var pubkey = chrome.storage.sync.get('pgp_pubkey', function (data) {
+    if (Object.keys(data).length != 0) {
+      if (!confirm('Are you sure you want to create a new keypair? You already have one saved')) {
+        return;
+      }
+    }
+
+    show_result('generating...');
+    var options = {
+      userIds: [{ name : document.getElementById('name').value,
+                  email: document.getElementById('email').value
+      }],
+      numBits: 4096,
+      passphrase: document.getElementById('passphrase')
+    }
+
+    openpgp.generateKey(options)
+      .then(function(key) {
+        chrome.storage.sync.set({
+          pgp_pubkey: key.publicKeyArmored,
+          pgp_privkey: key.privateKeyArmored
+        }, function() {
+           show_result('generated succesfully');
+        });
+      })
+      .catch(show_error);
+  });
+}
+
+
 document.getElementById('pgp_encrypt').onclick = pgp_encrypt;
 document.getElementById('pgp_decrypt').onclick = pgp_decrypt;
 document.getElementById('aes_encrypt').onclick = aes_encrypt;
 document.getElementById('aes_decrypt').onclick = aes_decrypt;
+document.getElementById('pgp_keygen').onclick = pgp_keygen;
+document.getElementById('pgp_encrypt_keypair').onclick = pgp_encrypt_keypair;
+document.getElementById('pgp_decrypt_keypair').onclick = pgp_decrypt_keypair;
