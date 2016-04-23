@@ -1,17 +1,27 @@
 var openpgp = window.openpgp;
 
 openpgp.initWorker({ path:'bower_components/openpgp/dist/openpgp.worker.js' }) // set the relative web worker path
-
 openpgp.config.aead_protect = true // activate fast AES-GCM mode (experimental)
 
+/* encrypt using pgp and a password */
 function pgp_encrypt() {
   var options = {
     data: document.getElementById('input').value,
     passwords:[document.getElementById('password').value]
   };
   openpgp.encrypt(options).then(show_result);
-}
+};
 
+/* decrypt using pgp and a password */
+function pgp_decrypt() {
+  var options = {
+    message: openpgp.message.readArmored(document.getElementById('input').value),
+    password: document.getElementById('password').value
+  };
+  openpgp.decrypt(options).then(show_result).catch(show_error);
+};
+
+/* encrypt using the pgp keypair saved to localStorage */
 function pgp_encrypt_keypair() {
   chrome.storage.sync.get(['pgp_pubkey', 'pgp_privkey'], function(result) {
     if (Object.keys(result).length === 0) {
@@ -27,6 +37,7 @@ function pgp_encrypt_keypair() {
   });
 };
 
+/* decrypt using the pgp keypair saved to localStorage */
 function pgp_decrypt_keypair() {
   chrome.storage.sync.get(['pgp_pubkey', 'pgp_privkey'], function(result) {
     if (Object.keys(result).length === 0) {
@@ -41,66 +52,16 @@ function pgp_decrypt_keypair() {
     };
 
     var options = {
-      message: openpgp.message.read(reverse(document.getElementById('input').value)),
+      message: openpgp.message.read(hexToBytes(document.getElementById('input').value)),
       publicKeys: openpgp.key.readArmored(result.pgp_pubkey).keys,
       privateKey: privkey 
     };
+
     openpgp.decrypt(options).then(show_result);
   });
 };
 
-function pgp_decrypt() {
-  var options = {
-    message: openpgp.message.readArmored(document.getElementById('input').value),
-    password: document.getElementById('password').value
-  };
-  openpgp.decrypt(options).then(show_result).catch(show_error);
-}
-
-function reverse(string) {
-  return hexToBytes(string);
-}
-
-function hexToBytes(hex) {
-  for (var bytes = [], c = 0; c < hex.length; c += 2)
-    bytes.push(parseInt(hex.substr(c, 2), 16));
-  return new Uint8Array(bytes);
-}
-
-// Convert a byte array to a hex string
-function bytesToHex(bytes) {
-  for (var hex = [], i = 0; i < bytes.length; i++) {
-    hex.push((bytes[i] >>> 4).toString(16));
-    hex.push((bytes[i] & 0xF).toString(16));
-  }
-  return hex.join('');
-}
-
-function show_result(result) {
-  if (result.message) {
-    result.data = bytesToHex(result.message.packets.write());
-  }
-  document.getElementById('result').value = result && result.data ? result.data : result;
-}
-
-function show_error(input) {
-  show_result(typeof input === 'string' ? input : 'error');
-}
-
-function aes_encrypt() {
-  var message = document.getElementById('input').value;
-  var key = document.getElementById('password').value;
-  var iv  = '0000000000000000';
-  var encrypted = CryptoJS.AES.encrypt(message, key);
-  show_result(encrypted);
-}
-
-function aes_decrypt() {
-  var data = document.getElementById('input').value;
-  var key = document.getElementById('password').value;
-  show_result(CryptoJS.AES.decrypt(data,key).toString(CryptoJS.enc.Utf8));
-}
-
+/* creates a pgp public/private keypair and saves it to localStorage */
 function pgp_keygen() {
   var pubkey = chrome.storage.sync.get('pgp_pubkey', function (data) {
     if (Object.keys(data).length != 0) {
@@ -129,8 +90,52 @@ function pgp_keygen() {
       })
       .catch(show_error);
   });
-}
+};
 
+/* Encrypts using aes and a key */
+function aes_encrypt() {
+  var message = document.getElementById('input').value;
+  var key = document.getElementById('password').value;
+  var iv  = '0000000000000000';
+  var encrypted = CryptoJS.AES.encrypt(message, key);
+  show_result(encrypted);
+};
+
+/* Decrypts using aes and a key */
+function aes_decrypt() {
+  var data = document.getElementById('input').value;
+  var key = document.getElementById('password').value;
+  show_result(CryptoJS.AES.decrypt(data,key).toString(CryptoJS.enc.Utf8));
+};
+
+/* --- Utility functions --- */
+
+/* Converts a hex string to a uint8array */
+function hexToBytes(hex) {
+  for (var bytes = [], c = 0; c < hex.length; c += 2)
+    bytes.push(parseInt(hex.substr(c, 2), 16));
+  return new Uint8Array(bytes);
+};
+
+/* Convert a byte array to a hex string */
+function bytesToHex(bytes) {
+  for (var hex = [], i = 0; i < bytes.length; i++) {
+    hex.push((bytes[i] >>> 4).toString(16));
+    hex.push((bytes[i] & 0xF).toString(16));
+  }
+  return hex.join('');
+};
+
+function show_result(result) {
+  if (result.message) {
+    result.data = bytesToHex(result.message.packets.write());
+  }
+  document.getElementById('result').value = result && result.data ? result.data : result;
+};
+
+function show_error(input) {
+  show_result(typeof input === 'string' ? input : 'error');
+};
 
 document.getElementById('pgp_encrypt').onclick = pgp_encrypt;
 document.getElementById('pgp_decrypt').onclick = pgp_decrypt;
