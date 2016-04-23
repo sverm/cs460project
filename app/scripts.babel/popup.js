@@ -31,11 +31,19 @@ function pgp_decrypt_keypair() {
   chrome.storage.sync.get(['pgp_pubkey', 'pgp_privkey'], function(result) {
     if (Object.keys(result).length === 0) {
       show_error('No key, generate a keypair to use');
+      return;
     }
+    
+    var privkey = openpgp.key.readArmored(result.pgp_privkey).keys[0];
+    if(!privkey.decrypt(document.getElementById('password').value)) {
+      show_error('please enter valid password to decrypt');
+      return;
+    };
+
     var options = {
       message: openpgp.message.read(reverse(document.getElementById('input').value)),
       publicKeys: openpgp.key.readArmored(result.pgp_pubkey).keys,
-      privateKey: openpgp.key.readArmored(result.pgp_privkey).keys[0],
+      privateKey: privkey 
     };
     openpgp.decrypt(options).then(show_result);
   });
@@ -49,29 +57,34 @@ function pgp_decrypt() {
   openpgp.decrypt(options).then(show_result).catch(show_error);
 }
 
-function stringToUint(string) {
-  var string = btoa(unescape(encodeURIComponent(string))),
-  charList = string.split(''),
-  uintArray = [];
-  for (var i = 0; i < charList.length; i++) {
-    uintArray.push(charList[i].charCodeAt(0));
-  }
-  return new Uint8Array(uintArray);
+function reverse(string) {
+  return hexToBytes(string);
 }
 
-function reverse(thing) {
-  return stringToUint(thing);
+function hexToBytes(hex) {
+  for (var bytes = [], c = 0; c < hex.length; c += 2)
+    bytes.push(parseInt(hex.substr(c, 2), 16));
+  return new Uint8Array(bytes);
+}
+
+// Convert a byte array to a hex string
+function bytesToHex(bytes) {
+  for (var hex = [], i = 0; i < bytes.length; i++) {
+    hex.push((bytes[i] >>> 4).toString(16));
+    hex.push((bytes[i] & 0xF).toString(16));
+  }
+  return hex.join('');
 }
 
 function show_result(result) {
   if (result.message) {
-    result.data = btoa(String.fromCharCode.apply(null, result.message.packets.write()));
+    result.data = bytesToHex(result.message.packets.write());
   }
   document.getElementById('result').value = result && result.data ? result.data : result;
 }
 
 function show_error(input) {
-  show_result(typeof input === 'string' ? input : 'error in decryption');
+  show_result(typeof input === 'string' ? input : 'error');
 }
 
 function aes_encrypt() {
@@ -102,7 +115,7 @@ function pgp_keygen() {
                   email: document.getElementById('email').value
       }],
       numBits: 4096,
-      passphrase: document.getElementById('passphrase')
+      passphrase: document.getElementById('passphrase').value
     }
 
     openpgp.generateKey(options)
