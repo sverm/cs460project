@@ -2,55 +2,64 @@
   <head>
     <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.css">
   </head>
-  <body>
-    <ul class="nav nav-tabs" id="nav_bar" >
-      <li role="presentation" id="pgp_nav" class="active"><a href="#">PGP</a> </li>
-      <li role="presentation" id="aes_nav" ><a href="#">AES</a> </li>
-    </ul>
-    <div id="common_stuff" class="form-group">
+  <body style="padding-left:24px; width: 90%; margin-top: 24px;">
+   <div id="common_stuff" class="form-group" >
       <label for="input">Message:</label> 
       <textarea type="text" id="input" class="form-control" rows="2"></textarea>
       <p></p>
-      <label for="password">Password:</label> 
+      <label for="password">Password:</label> <p>
       <input type="password" id="password"></input>
       <p>
       <label for="result">Result:</label> 
       <textarea readonly id="result" class="form-control" rows="2"></textarea>
     </div>
-    <div id="nav_dependant_stuff">
+    <ul class="nav nav-tabs" id="nav_bar">
+      <li role="presentation" id="pgp_nav" class="active"><a href="#">PGP Password</a> </li>
+      <li role="presentation" id="pgpk_nav"><a href="#">PGP keypair</a> </li>
+      <li role="presentation" id="aes_nav" ><a href="#">AES</a> </li>
+    </ul>
+    <p>
+    <div id="nav_dependent_stuff">
       <div id="pgp_stuff" class="form-group">
         <p></p>
-        <button type="submit" id="pgp_encrypt">
+        <button type="submit" id="pgp_encrypt" class="btn btn-default btn-block">
           Encrypt with PGP password
         </button>
-        <button type="submit" id="pgp_encrypt_keypair">
-          Encrypt with pgp keypair
+        <button type="submit" id="pgp_decrypt" class="btn btn-default btn-block">
+          Decrypt with PGP password
         </button>
-        <button type="submit" id="pgp_decrypt">
-          Decrypt with pgp
+      </div>
+      <div id="pgpk_stuff" class="form-group hidden">
+        <button type="submit" id="pgp_encrypt_keypair" class="btn btn-default btn-block">
+          Encrypt with PGP keypair
         </button>
-        <button type="submit" id="pgp_decrypt_keypair">
-          Decrypt with pgp keypair 
+       <button type="submit" id="pgp_decrypt_keypair" class="btn btn-default btn-block">
+          Decrypt with PGP keypair 
         </button>
-        <button type="submit" id="pgp_keygen">
-          Generate new pgp key pair
+        <button type="submit" id="pgp_keygen"class="btn btn-default btn-block">
+          Generate new PGP key pair
+        </button>
+        <button type="submit" id="pgp_showkey"class="btn btn-default btn-block">
+          Show PGP public key
         </button>
         <p></p>
-        <label for="name">Name:</label> 
-        <input id="name"></input>
-        <p></p>
-        <label for="email">Email: </label>
-        <input id="email" type="email"></input>
-        <p></p>
-        <label for="passphrase"> Passphrase: </label>
-        <input type="password" id="passphrase"></input>
+        <div style="width: 100%">
+          <label style="width: 100%"for="name">Name:</label>
+          <input style="width: 100%"id="name"></input>
+          <p></p>
+          <label style="width: 100%"for="email">Email: </label>
+          <input style="width: 100%"id="email" type="email"></input>
+          <p></p>
+          <label style="width: 100%"for="passphrase"> Passphrase: </label>
+          <input style="width: 100%"type="password" id="passphrase"></input>
+        </div>
       </div>
       <div id="aes_stuff" class="form-group hidden" >
         <p></p>
-        <button type="submit" id="aes_encrypt">
+        <button type="submit" id="aes_encrypt"class="btn btn-default">
           Encrypt with AES
         </button>
-        <button type="submit" id="aes_decrypt">
+        <button type="submit" id="aes_decrypt"class="btn btn-default">
           Decrypt with AES
         </button>
       </div>

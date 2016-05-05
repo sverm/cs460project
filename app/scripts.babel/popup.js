@@ -111,26 +111,22 @@ function aes_decrypt() {
 /* --- Visuals related functions --- */
 
 /* --- Nav Bar related switched --- */
-function show_nav_dependant_stuff(id) {
-  console.log(id)
+function show_nav_dependent_stuff(id) {
+
   var stuff_id = id + '_stuff';
   var nav_id = id + '_nav';
 
-  var stuffs = document
-    .getElementById('nav_dependant_stuff')
-    .getElementsByClassName('form-group');
-  for (var i=0; i < stuffs.length; i++) {
+  var stuffs = document.getElementById('nav_dependent_stuff').getElementsByClassName('form-group');
+
+  for (var i = 0;i < stuffs.length; i++) {
     stuffs[i].className = (stuffs[i].id == stuff_id ? 'form-group' : 'form-group hidden');
   };
 
-  var navs = document
-    .getElementById('nav_bar')
-    .children;
+  var navs = document.getElementById('nav_bar').children;
 
   for (var i=0; i < navs.length; i++) {
     navs[i].className = (navs[i].id == nav_id ? 'active' : '');
   };
-  debugger;
 };
 
 /* --- Utility functions --- */
@@ -162,12 +158,23 @@ function show_error(input) {
   show_result(typeof input === 'string' ? input : 'error');
 };
 
+function pgp_showkey() {
+  chrome.storage.sync.get('pgp_pubkey', function(result) {
+    show_result(result.pgp_pubkey);
+  });
+};
+
 document.getElementById('pgp_encrypt').onclick = pgp_encrypt;
 document.getElementById('pgp_decrypt').onclick = pgp_decrypt;
 document.getElementById('aes_encrypt').onclick = aes_encrypt;
 document.getElementById('aes_decrypt').onclick = aes_decrypt;
+
 document.getElementById('pgp_keygen').onclick = pgp_keygen;
+document.getElementById('pgp_showkey').onclick = pgp_showkey;
+
+document.getElementById('pgp_nav').onclick = show_nav_dependent_stuff.bind(null, 'pgp')
+document.getElementById('pgpk_nav').onclick = show_nav_dependent_stuff.bind(null, 'pgpk')
+document.getElementById('aes_nav').onclick = show_nav_dependent_stuff.bind(null, 'aes')
+
 document.getElementById('pgp_encrypt_keypair').onclick = pgp_encrypt_keypair;
 document.getElementById('pgp_decrypt_keypair').onclick = pgp_decrypt_keypair;
-document.getElementById('pgp_nav').onclick = function () {show_nav_dependant_stuff('pgp');}
-document.getElementById('aes_nav').onclick = function () {show_nav_dependant_stuff('aes');}
