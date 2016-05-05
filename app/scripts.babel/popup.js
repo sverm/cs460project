@@ -108,6 +108,31 @@ function aes_decrypt() {
   show_result(CryptoJS.AES.decrypt(data,key).toString(CryptoJS.enc.Utf8));
 };
 
+/* --- Visuals related functions --- */
+
+/* --- Nav Bar related switched --- */
+function show_nav_dependant_stuff(id) {
+  console.log(id)
+  var stuff_id = id + '_stuff';
+  var nav_id = id + '_nav';
+
+  var stuffs = document
+    .getElementById('nav_dependant_stuff')
+    .getElementsByClassName('form-group');
+  for (var i=0; i < stuffs.length; i++) {
+    stuffs[i].className = (stuffs[i].id == stuff_id ? 'form-group' : 'form-group hidden');
+  };
+
+  var navs = document
+    .getElementById('nav_bar')
+    .children;
+
+  for (var i=0; i < navs.length; i++) {
+    navs[i].className = (navs[i].id == nav_id ? 'active' : '');
+  };
+  debugger;
+};
+
 /* --- Utility functions --- */
 
 /* Converts a hex string to a uint8array */
@@ -144,3 +169,5 @@ document.getElementById('aes_decrypt').onclick = aes_decrypt;
 document.getElementById('pgp_keygen').onclick = pgp_keygen;
 document.getElementById('pgp_encrypt_keypair').onclick = pgp_encrypt_keypair;
 document.getElementById('pgp_decrypt_keypair').onclick = pgp_decrypt_keypair;
+document.getElementById('pgp_nav').onclick = function () {show_nav_dependant_stuff('pgp');}
+document.getElementById('aes_nav').onclick = function () {show_nav_dependant_stuff('aes');}

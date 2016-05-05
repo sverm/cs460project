@@ -1,34 +1,60 @@
-<html>
+<html style="min-width:600px;">
+  <head>
+    <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.css">
+  </head>
   <body>
-    <textarea type="text" id="input"></textarea>
+    <ul class="nav nav-tabs" id="nav_bar" >
+      <li role="presentation" id="pgp_nav" class="active"><a href="#">PGP</a> </li>
+      <li role="presentation" id="aes_nav" ><a href="#">AES</a> </li>
+    </ul>
+    <div id="common_stuff" class="form-group">
+      <label for="input">Message:</label> 
+      <textarea type="text" id="input" class="form-control" rows="2"></textarea>
+      <p></p>
+      <label for="password">Password:</label> 
       <input type="password" id="password"></input>
       <p>
-      <button type="submit" id="pgp_encrypt">
-        Encrypt with pgp password
-      </button>
-      <button type="submit" id="pgp_encrypt_keypair">
-        Encrypt with pgp keypair
-      </button>
-     <button type="submit" id="pgp_decrypt">
-        Decrypt with pgp
-      </button>
-      <button type="submit" id="pgp_decrypt_keypair">
-        Decrypt with pgp keypair 
-      </button>
-      <button type="submit" id="aes_encrypt">
-        Encrypt with AES
-      </button>
-      <button type="submit" id="aes_decrypt">
-        Decrypt with AES
-      </button>
-      <p>
-      <textarea readonly id="result"></textarea>
-      <button type="submit" id="pgp_keygen">
-        Generate new pgp key pair
-      </button>
-      <input id="name"></input>
-      <input id="email" type="email"></input>
-      <input type="password" id="passphrase"></input>
+      <label for="result">Result:</label> 
+      <textarea readonly id="result" class="form-control" rows="2"></textarea>
+    </div>
+    <div id="nav_dependant_stuff">
+      <div id="pgp_stuff" class="form-group">
+        <p></p>
+        <button type="submit" id="pgp_encrypt">
+          Encrypt with PGP password
+        </button>
+        <button type="submit" id="pgp_encrypt_keypair">
+          Encrypt with pgp keypair
+        </button>
+        <button type="submit" id="pgp_decrypt">
+          Decrypt with pgp
+        </button>
+        <button type="submit" id="pgp_decrypt_keypair">
+          Decrypt with pgp keypair 
+        </button>
+        <button type="submit" id="pgp_keygen">
+          Generate new pgp key pair
+        </button>
+        <p></p>
+        <label for="name">Name:</label> 
+        <input id="name"></input>
+        <p></p>
+        <label for="email">Email: </label>
+        <input id="email" type="email"></input>
+        <p></p>
+        <label for="passphrase"> Passphrase: </label>
+        <input type="password" id="passphrase"></input>
+      </div>
+      <div id="aes_stuff" class="form-group hidden" >
+        <p></p>
+        <button type="submit" id="aes_encrypt">
+          Encrypt with AES
+        </button>
+        <button type="submit" id="aes_decrypt">
+          Decrypt with AES
+        </button>
+      </div>
+    </div>
   </body>
   <script src="scripts/patch-worker.js"></script>
   <script src="bower_components/openpgp/dist/openpgp.js"></script>
